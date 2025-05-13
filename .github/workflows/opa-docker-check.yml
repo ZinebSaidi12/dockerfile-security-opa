@@ -1,0 +1,21 @@
+name: Dockerfile Security Check
+
+on: [push, pull_request]
+
+jobs:
+  conftest-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install Conftest 
+        run: |
+          wget https://github.com/open-policy-agent/conftest/releases/download/v0.50.0/conftest_0.50.0_Linux_x86_64.tar.gz
+          tar xzf conftest_0.50.0_Linux_x86_64.tar.gz
+          sudo mv conftest /usr/local/bin
+          conftest --version
+
+      - name: Evaluate Dockerfile against policies
+        run: |
+          conftest test Dockerfile -p ./opa/policy.rego --no-color --all-namespaces
