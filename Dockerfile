@@ -1,14 +1,17 @@
-# Violation 1: Uses 'latest' tag
-FROM alpine:latest
+# Passes: Uses specific version tag
+FROM alpine:3.19
 
-# Violation 2: Runs as root (default)
-USER root
+# Passes: Sets non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
 
-# Violation 3: No HEALTHCHECK directive
+# Passes: Uses COPY instead of ADD
+COPY ./local-file.txt /app/
 
-# Violation 4: Uses ADD instruction
-ADD https://example.com/file.tar.gz /tmp/
+# Passes: HEALTHCHECK directive
+HEALTHCHECK CMD curl --fail http://localhost:5000/ || exit 1
 
+# Install dependencies safely
 RUN apk add --no-cache curl
 
 CMD ["sh"]
